@@ -1,0 +1,9 @@
+# HTTP Server
+  server:
+  port: 4444
+
+  spring:
+    data:
+      mongodb:
+      uri: mongodb://localhost:27017/meal-org
+
