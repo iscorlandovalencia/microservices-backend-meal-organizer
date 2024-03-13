@@ -1,5 +1,6 @@
 package com.valencia.meal.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.annotation.Id;
@@ -29,10 +30,8 @@ public class Meal {
     @Indexed(unique = true)
     private String name;
 
-
-    @DocumentReference
-    private List<String> ingredients;
-
+    @JsonFormat(with = JsonFormat.Feature.ACCEPT_SINGLE_VALUE_AS_ARRAY)
+    private List<Long> ingredients;
 
     private String image;
 
@@ -62,11 +61,11 @@ public class Meal {
         this.name = name;
     }
 
-    public List<String> getIngredients() {
+    public List<Long> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(List<String> ingredients) {
+    public void setIngredients(List<Long> ingredients) {
         this.ingredients = ingredients;
     }
 

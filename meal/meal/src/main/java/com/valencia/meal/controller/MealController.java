@@ -39,26 +39,15 @@ public class MealController {
     /*
     * Create meal example
     *  {
-    "category": "a category",
-    "name": "Meal Name",
-    "ingredient" : [{
-        "id": "1",
-        "name": "cebolla",
-        "type": "verdura",
-        "price": "10.0",
-        "image": ""
-    },{
-        "id": "2",
-        "name": "jitomate",
-        "type": "verdura",
-        "price": "12.0",
-        "image": ""
-    }],
-    "image": "",
-    "preparation" : "1. cortar\n 2. servir"
+    "       category": "a category 3",
+    "       name": "Third Meal Name",
+    "       ingredients" : ["10", "20"],
+    "       image": "",
+    "       preparation" : "1. cortar\n2. servir"
+        }
     * */
     @PostMapping("/meals")
-    public ResponseEntity<Meal> createMeal(@Valid @RequestBody Meal fromMeal) throws Exception {
+    public ResponseEntity<Meal> createMeal(@org.jetbrains.annotations.NotNull @Valid @RequestBody Meal fromMeal) throws Exception {
 
         Meal meal = new Meal();
         meal.setId(sequenceGeneratorService.generateSequence(Meal.SEQUENCE_NAME));

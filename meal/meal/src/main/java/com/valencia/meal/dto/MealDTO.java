@@ -8,7 +8,7 @@ public class MealDTO {
 
     private String name;
     //private List<Ingredient> ingredients;
-    private List<String> ingredients;
+    private List<Long> ingredients;
     private String image;
     private String preparation;
 
@@ -36,11 +36,11 @@ public class MealDTO {
         this.name = name;
     }
 
-    public List<String> getIngredients() {
+    public List<Long> getIngredients() {
         return ingredients;
     }
 
-    public void setIngredients(List<String> ingredients) {
+    public void setIngredients(List<Long> ingredients) {
         this.ingredients = ingredients;
     }
 
