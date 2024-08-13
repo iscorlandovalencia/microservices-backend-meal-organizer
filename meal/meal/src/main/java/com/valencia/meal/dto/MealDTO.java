@@ -5,7 +5,6 @@ import java.util.List;
 public class MealDTO {
     private Long id;
     private String category;
-
     private String name;
     //private List<Ingredient> ingredients;
     private List<Long> ingredients;
