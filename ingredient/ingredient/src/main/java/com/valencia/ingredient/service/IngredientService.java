@@ -68,12 +68,8 @@ public class IngredientService {
                 .orElseThrow(() -> new Exception("Ingredient not found for this id :: " + ingredientId)));
 
         Map < String, Boolean > response = new HashMap< >();
-        if(ingredient.isPresent()){
-            ingredientRepository.deleteById(ingredientId);
-            response.put("deleted", Boolean.TRUE);
-        }else{
-            response.put("deleted", Boolean.FALSE);
-        }
+        ingredientRepository.deleteById( ingredient.isPresent() ? ingredientId : 0);
+        response.put("deleted", ingredient.isPresent() ? Boolean.TRUE : Boolean.FALSE);
 
         return response;
     }
