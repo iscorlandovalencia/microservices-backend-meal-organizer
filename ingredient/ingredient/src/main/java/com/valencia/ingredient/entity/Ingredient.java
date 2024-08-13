@@ -21,6 +21,7 @@ public class Ingredient {
     @Indexed(unique = true)
     private String name;
 
+    //Type is Category
     private String type;
 
     private Double price;

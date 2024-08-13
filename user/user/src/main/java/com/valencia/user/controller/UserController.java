@@ -55,14 +55,16 @@ public class UserController {
      * Login method
     **/
     @RequestMapping(value = "/username", method = RequestMethod.GET)
-    public Boolean getUserByName(@RequestParam(value="email") String email, @RequestParam(value="password") String password) throws Exception {
+    public Boolean getUserByEmail(@RequestParam(value="email") String email, @RequestParam(value="password") String password) throws Exception {
         Boolean existUser = false;
         List<User> user = Optional.ofNullable(userRepository.findByEmailIs(email))
+        //List<User> user = Optional.ofNullable(userRepository.findByName(name))
                 .orElseThrow(() -> new Exception("User not found for this email :: " + email));
 
         if (!user.isEmpty()) {
             existUser = user.stream().allMatch(thisUser ->
                     thisUser.getEmail().equals(email) &&
+                    //thisUser.getName().equals(name) &&
                     thisUser.getPassword().equals(password));
         }
         return existUser;
