@@ -1,13 +1,10 @@
 server:
-  port: 4445
-
-  spring:
-    data:
-      mongodb:
-        uri: mongodb://localhost:27017/meal-org
-        #host: mongodb
-        #port: 27017
-        #database: meal-org
-        #authentication-database: admin
-        #username: admin
-        #password: admin
+    port: 4445
+spring:
+  application:
+    name: user
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DBNAME:meal-org}
+      username: ${MONGODB_USER:admin}
+      password: ${MONGODB_PASSWORD:admin}
