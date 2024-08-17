@@ -1,9 +1,10 @@
-# HTTP Server
 server:
   port: 5555
-
 spring:
+  application:
+    name: ingredient
   data:
     mongodb:
-      uri: mongodb://localhost:27017/meal-org
-
+      uri: mongodb://${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DBNAME:meal-org}
+      username: ${MONGODB_USER:admin}
+      password: ${MONGODB_PASSWORD:admin}
