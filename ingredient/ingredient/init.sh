@@ -2,7 +2,7 @@
 docker pull mongodb/mongodb-community-server
 
 # Run mongodb as a container
-docker run --name mongocontainer -d mongodb/mongodb-community-server:latest
+docker run -d -p 27017:27017 --name mongocontainer -d mongodb/mongodb-community-server:latest
 
 # docker network create ${network_name}
 docker network create networkmongo
