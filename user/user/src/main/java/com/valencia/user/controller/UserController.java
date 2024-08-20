@@ -2,11 +2,8 @@ package com.valencia.user.controller;
 
 import com.valencia.user.entity.User;
 import com.valencia.user.exception.ResourceNotFoundException;
-import com.valencia.user.repository.UserRepository;
-import com.valencia.user.service.SequenceGeneratorService;
+import com.valencia.user.service.UserService;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,40 +18,25 @@ import java.util.Optional;
 @RequestMapping("/api")
 public class UserController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(UserController.class);
-
     @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private SequenceGeneratorService sequenceGeneratorService;
+    private UserService userService;
 
     @GetMapping("/users")
     public List<User> getAllEUsers() {
-        LOG.info("Get All users");
-        return userRepository.findAll();
+        return userService.getAllUsers();
     }
 
     @PostMapping("/users")
-    public ResponseEntity<User> createUser(@Valid @RequestBody User fromUser) throws ResourceNotFoundException {
-
-        User user = new User();
-        user.setId(sequenceGeneratorService.generateSequence(User.SEQUENCE_NAME));
-        user.setName(fromUser.getName());
-        user.setLastName(fromUser.getLastName());
-        user.setEmail(fromUser.getEmail());
-        user.setPassword(fromUser.getPassword());
-
-        LOG.info("Saving a user : " + user.getId());
-        return ResponseEntity.ok(userRepository.save(user));
+    public ResponseEntity<User> createUser(
+            @Valid
+            @RequestBody User fromUser) throws Exception {
+        return ResponseEntity.ok(userService.createUser(fromUser));
     }
 
-    //@GetMapping("/user/{id}")
     @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Optional<User>> getUserById(@PathVariable(value = "id") Long userId) throws Exception {
-        LOG.info("Get user : " + userId);
-        Optional<User> user = Optional.ofNullable(userRepository.findById(userId)
-                .orElseThrow(() -> new Exception("User not found for this id :: " + userId)));
+    public ResponseEntity<Optional<User>> getUserById(
+            @PathVariable(value = "id") Long userId) throws Exception {
+        Optional<User> user = userService.getUserById(userId);
         return ResponseEntity.ok().body(user);
     }
 
@@ -62,72 +44,33 @@ public class UserController {
      * Login method
     **/
     @RequestMapping(value = "/username", method = RequestMethod.GET)
-    public Boolean getUserByEmail(@RequestParam(value="email") String email, @RequestParam(value="password") String password) throws Exception {
-        Boolean existUser = false;
-        LOG.info("Get email user : " + email);
-        List<User> user = Optional.ofNullable(userRepository.findByEmailIs(email))
-        //List<User> user = Optional.ofNullable(userRepository.findByName(name))
-                .orElseThrow(() -> new Exception("User not found for this email :: " + email));
-
-        if (!user.isEmpty()) {
-            existUser = user.stream().allMatch(thisUser ->
-                    thisUser.getEmail().equals(email) &&
-                    //thisUser.getName().equals(name) &&
-                    thisUser.getPassword().equals(password));
-        }
-        LOG.info("The user was found? : " + (existUser ? "YES" : "NO"));
-        return existUser;
+    public Boolean loginByEmail(
+            @RequestParam(value="email") String email,
+            @RequestParam(value="password") String password) throws Exception {
+        return userService.getLoginByEmail(email, password);
     }
 
     @PutMapping("/user/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable(value = "id") Long userId, @Valid @RequestBody User fromUser) throws ResourceNotFoundException {
-        LOG.info("Looking for user : " + userId);
-        Optional<User> user = Optional.ofNullable(userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId)));
+    public ResponseEntity<User> updateUser(
+            @PathVariable(value = "id") Long userId,
+            @Valid
+            @RequestBody User fromUser) throws Exception {
 
-        User thisUser = new User();
-        if (user.isPresent()) {
-            LOG.info("user is present? : " + (user.isPresent() ? "YES" : "NO"));
-            thisUser = user.get();
-        }
-
-        thisUser.setName(fromUser.getName());
-        thisUser.setLastName(fromUser.getLastName());
-        thisUser.setEmail(fromUser.getEmail());
-        final User updatedUser = userRepository.save(thisUser);
-        LOG.info("User updated");
-        return ResponseEntity.ok(updatedUser);
+        return ResponseEntity.ok(userService.updateUser(userId, fromUser));
     }
 
     @DeleteMapping("/user/{id}")
-    public Map< String, Boolean > deleteUser(@PathVariable(value = "id") Long userId) throws ResourceNotFoundException {
-        LOG.info("Looking for user : " + userId);
-        Optional<User> user = Optional.ofNullable(userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId)));
-
-        userRepository.delete(user.get());
-        Map < String, Boolean > response = new HashMap< >();
-        response.put("deleted", Boolean.TRUE);
-        LOG.info("user deleted : " + userId);
-        return response;
+    public Map<String, Boolean> deleteUser(
+            @PathVariable(value = "id") Long userId) throws Exception {
+        return userService.deleteUser(userId);
     }
 
     @PutMapping("/reset/user/{id}")
-    public ResponseEntity <User> resetPassword(@PathVariable(value = "id") Long userId, @Valid @RequestBody User fromUser) throws ResourceNotFoundException {
-        LOG.info("Looking for user : " + userId);
-        Optional<User> user = Optional.ofNullable(userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found for this id :: " + userId)));
-
-        User thisUser = new User();
-        if(user.isPresent()){
-            LOG.info("user is present? : " + (user.isPresent() ? "YES" : "NO"));
-            thisUser = user.get();
-        }
-
-        thisUser.setPassword(fromUser.getPassword());
-        final User updatedUser = userRepository.save(thisUser);
-        LOG.info("user updated : " + updatedUser.getId());
-        return ResponseEntity.ok(updatedUser);
+    public ResponseEntity <User> resetPassword(
+            @PathVariable(value = "id") Long userId,
+            @Valid
+            @RequestBody User fromUser) throws Exception {
+        return ResponseEntity.ok(userService.resetPassword(userId, fromUser));
     }
 
 }
