@@ -1,0 +1,14 @@
+server:
+  port: 0
+spring:
+  application:
+    name: meal
+  data:
+    mongodb:
+      uri: mongodb://${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DBNAME:meal-org}
+      username: ${MONGODB_USER:admin}
+      password: ${MONGODB_PASSWORD:admin}
+
+eureka:
+  instance:
+    instance-id: ${spring.application.name}:${random.uuid}
