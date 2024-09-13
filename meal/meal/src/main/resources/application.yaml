@@ -1,8 +1,0 @@
-# HTTP Server
-server:
-  port: 6666
-
-spring:
-  data:
-    mongodb:
-      uri: mongodb://localhost:27017/meal-org
