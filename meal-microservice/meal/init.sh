@@ -14,7 +14,7 @@ docker network connect networkmongo mongocontainer
 mvn clean package compile install -DskipTests
 
 # create the image
-docker build -t meal .
+docker build -t meal-microservice .
 
 # run application container using mongodb connection
-docker run -d -p 6666:6666 --name mealcontainer --net networkmongo -e SERVER_PORT=6666 -e MONGODB_HOST=mongocontainer -e MONGODB_PORT=27017 -e MONGODB_DBNAME=meal-org -e MONGODB_USER=admin -e MONGODB_PASSWORD=admin meal
+docker run --name mealcontainer --net networkmongo -e SERVER_PORT=6666 -e MONGODB_HOST=mongocontainer -e MONGODB_PORT=27017 -e MONGODB_DBNAME=meal-org -e MONGODB_USER=admin -e MONGODB_PASSWORD=admin -d meal-microservice

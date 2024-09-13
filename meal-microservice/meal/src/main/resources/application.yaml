@@ -2,7 +2,7 @@ server:
   port: 0
 spring:
   application:
-    name: meal
+    name: meal-microservice
   data:
     mongodb:
       uri: mongodb://${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DBNAME:meal-org}
@@ -10,5 +10,8 @@ spring:
       password: ${MONGODB_PASSWORD:admin}
 
 eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://172.26.0.1:8761/eureka
   instance:
-    instance-id: ${spring.application.name}:${random.uuid}
+    instanceId: ${spring.application.name}:${random.uuid}
