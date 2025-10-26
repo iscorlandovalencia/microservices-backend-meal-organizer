@@ -1,6 +1,18 @@
 package com.valencia.api.gateway.filter;
 
-/*
+import com.valencia.api.gateway.service.JwtService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+/**
     Checar si en cache tiene informacion sobre el usuario
     Si tiene informacion obtener el token,
     comprobar que exista en la bd y regresar usuario
@@ -15,19 +27,7 @@ package com.valencia.api.gateway.filter;
     salvar el token
 
  */
-
-
-import com.valencia.api.gateway.service.JwtService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.gateway.filter.GatewayFilterChain;
-import org.springframework.cloud.gateway.filter.GlobalFilter;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Mono;
-
-import java.util.List;
-
+@Component
 public class JwtAuthFilter implements GlobalFilter {
     @Autowired
     private JwtService jwtService;
