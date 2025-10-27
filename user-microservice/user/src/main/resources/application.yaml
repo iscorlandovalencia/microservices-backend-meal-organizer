@@ -8,7 +8,6 @@ spring:
       uri: mongodb://${MONGODB_HOST:localhost}:${MONGODB_PORT:27017}/${MONGODB_DBNAME:meal-org}
       username: ${MONGODB_USER:admin}
       password: ${MONGODB_PASSWORD:admin}
-
 eureka:
   client:
     serviceUrl:

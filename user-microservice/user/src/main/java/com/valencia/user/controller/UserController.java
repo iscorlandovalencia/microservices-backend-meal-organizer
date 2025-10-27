@@ -5,6 +5,10 @@ import com.valencia.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,33 +23,24 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @PreAuthorize("hasAuthority('SCOPE_TEST')")
+    @GetMapping("/ping")
+    public String ping() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        return "Scopes: " + authentication.getAuthorities();
+    }
+
     @GetMapping("/users")
-    public List<User> getAllEUsers() {
+    public List<User> getAllUsers() {
         return userService.getAllUsers();
     }
 
-    @PostMapping("/users")
-    public ResponseEntity<User> createUser(
-            @Valid
-            @RequestBody User fromUser) throws Exception {
-        return ResponseEntity.ok(userService.createUser(fromUser));
-    }
-
-    @RequestMapping(value = "/user/{id}", method = RequestMethod.GET)
+    @GetMapping("/user/{id}")
     public ResponseEntity<Optional<User>> getUserById(
             @PathVariable(value = "id") Long userId) throws Exception {
         Optional<User> user = userService.getUserById(userId);
         return ResponseEntity.ok().body(user);
-    }
-
-    /**
-     * Login method
-    **/
-    @RequestMapping(value = "/username", method = RequestMethod.GET)
-    public Boolean loginByEmail(
-            @RequestParam(value="email") String email,
-            @RequestParam(value="password") String password) throws Exception {
-        return userService.getLoginByEmail(email, password);
     }
 
     @PutMapping("/user/{id}")
