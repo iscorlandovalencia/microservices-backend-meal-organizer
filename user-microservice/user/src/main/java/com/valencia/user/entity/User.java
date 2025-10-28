@@ -1,5 +1,6 @@
 package com.valencia.user.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.valencia.user.dto.Role;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -38,6 +39,10 @@ public class User implements UserDetails {
     @Size(max = 100)
     @Indexed(unique = true)
     private String email;
+
+    @NotBlank
+    @Size(min = 6, max = 18)
+    @JsonIgnore
     private String password;
     private Role role;
 
@@ -68,6 +73,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return false;
+        return true;
     }
 }

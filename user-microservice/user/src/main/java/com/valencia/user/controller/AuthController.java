@@ -4,7 +4,10 @@ import com.valencia.user.dto.AuthResponse;
 import com.valencia.user.dto.LoginRequest;
 import com.valencia.user.dto.RegisterRequest;
 import com.valencia.user.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,7 +22,7 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping(value = "/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request){
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request){
         return ResponseEntity.ok(authService.login(request));
     }
 
