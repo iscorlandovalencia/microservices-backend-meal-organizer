@@ -5,7 +5,7 @@ mvn clean package compile install -DskipTests
 docker build -t discovery-microservice .
 
 # run application container
-docker run --name discoveryservice-container -p 8761:8761 -d discovery-microservice
+docker run --name discovery-service-container -p 8761:8761 -d discovery-microservice
 
 # docker network connect ${network_name} ${container_name}
-docker network connect networkmongo discoveryservice-container
+docker network connect networkmongo discovery-service-container
