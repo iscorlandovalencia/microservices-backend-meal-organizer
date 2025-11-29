@@ -1,6 +1,7 @@
 package com.valencia.ingredient.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.valencia.ingredient.dto.IngredientDTO;
 import com.valencia.ingredient.entity.Ingredient;
 import com.valencia.ingredient.service.IngredientService;
 import com.valencia.ingredient.util.JsonUtil;
@@ -15,7 +16,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
@@ -40,8 +44,8 @@ class IngredientControllerTest {
     private IngredientService ingredientService;
 
     Map<String, Boolean> response = new HashMap<>();
-    private static final Ingredient ingredient = new Ingredient();
-    private static final Ingredient ingredient2 = new Ingredient();
+    private static final IngredientDTO ingredient = new IngredientDTO();
+    private static final IngredientDTO ingredient2 = new IngredientDTO();
 
     @Before
     public void init() {
@@ -62,7 +66,7 @@ class IngredientControllerTest {
 
     @Test
     void return_all_ingredients_given_all_ingredients() throws Exception {
-        List<Ingredient> allIngredients = Arrays.asList(ingredient, ingredient2);
+        List<IngredientDTO> allIngredients = Arrays.asList(ingredient, ingredient2);
         given(ingredientService.getAllIngredients()).willReturn(allIngredients);
         mockMvc.perform(get(URL_TEMPLATE + INGREDIENTS)
                         .contentType(MediaType.APPLICATION_JSON))
@@ -75,13 +79,19 @@ class IngredientControllerTest {
     void given_ingredient_id_perform_get_ingredient_by_id() throws Exception {
         Ingredient theIngredient = new Ingredient();
         theIngredient.setId(89L);
-        theIngredient.setName(CEBOLLA);
+        theIngredient.setName("CEBOLLA");
 
-        given(ingredientService.getIngredientById(theIngredient.getId())).willReturn(Optional.ofNullable(theIngredient));
+        IngredientDTO dto = new IngredientDTO();
+        dto.setId(theIngredient.getId());
+        dto.setName(theIngredient.getName());
+
+        given(ingredientService.getIngredientById(theIngredient.getId()))
+                .willReturn(dto);
+
         mockMvc.perform(get(URL_TEMPLATE + INGREDIENT + "/" + theIngredient.getId())
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("name").value(theIngredient.getName()));
+                .andExpect(jsonPath("$.name").value(theIngredient.getName()));
     }
 
     @Test

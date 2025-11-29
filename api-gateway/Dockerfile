@@ -1,4 +1,4 @@
-FROM openjdk:17
+FROM eclipse-temurin:17-jdk
 LABEL maintainer="api-gateway"
 ADD target/api-gateway-0.0.1-SNAPSHOT.jar api-gateway.jar
 ARG JAR_FILE=target/*.jar

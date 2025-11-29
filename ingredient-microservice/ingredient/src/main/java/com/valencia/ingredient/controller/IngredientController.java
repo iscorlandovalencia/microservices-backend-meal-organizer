@@ -1,9 +1,11 @@
 package com.valencia.ingredient.controller;
 
+import com.valencia.ingredient.dto.IngredientDTO;
 import com.valencia.ingredient.entity.Ingredient;
 import com.valencia.ingredient.service.IngredientService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,18 +22,18 @@ public class IngredientController {
     private IngredientService ingredientService;
 
     @GetMapping("/ingredients")
-    public List<Ingredient> getAllUsers() {
+    public List<IngredientDTO> getAllIngredients() {
         return ingredientService.getAllIngredients();
     }
 
-    @RequestMapping(value = "/ingredient/{id}", method = RequestMethod.GET)
-    public ResponseEntity<Ingredient> getIngredientById(
-            @PathVariable(value = "id") Long ingredientId) throws Exception {
-        Optional<Ingredient> ingredient = ingredientService.getIngredientById(ingredientId);
-        return ResponseEntity.ok().body(ingredient.get());
+    @GetMapping("/ingredients/{id}")
+    public ResponseEntity<IngredientDTO> getIngredientById(
+            @PathVariable("id") Long ingredientId) throws Exception {
+        IngredientDTO ingredient = ingredientService.getIngredientById(ingredientId);
+        return ResponseEntity.ok(ingredient);
     }
 
-    @PostMapping("/ingredients")
+    @PostMapping( value = "/ingredients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Ingredient> createIngredient(
             @Valid @RequestBody Ingredient fromIngredient) throws Exception {
         return ResponseEntity.ok(ingredientService.createIngredient(fromIngredient));

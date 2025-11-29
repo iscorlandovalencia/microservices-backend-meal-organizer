@@ -1,5 +1,6 @@
 package com.valencia.ingredient.service;
 
+import com.valencia.ingredient.dto.IngredientDTO;
 import com.valencia.ingredient.entity.Ingredient;
 import com.valencia.ingredient.repository.IngredientRepository;
 import org.junit.Rule;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -60,24 +62,24 @@ class IngredientServiceTest {
         ingredient.setId(1L);
         ingredient.setName("zanahoria");
         ingredient.setType("verdura");
-        ingredient.setImage("sdhvbkdbvjbvj.jpg");
+        ingredient.setImage("sdhvbkdbvjbvj.jpg".getBytes(StandardCharsets.UTF_8));
         ingredient.setPrice(8.0);
 
         ingredient2.setId(2L);
         ingredient2.setName("zanahoria");
         ingredient2.setType("verdura");
-        ingredient2.setImage("sdhvbkdbvjbvj.jpg");
+        ingredient2.setImage("sdhvbkdbvjbvj.jpg".getBytes(StandardCharsets.UTF_8));
         ingredient2.setPrice(8.0);
 
         deleteIngredient.setId(2L);
         deleteIngredient.setName("cebolla");
         deleteIngredient.setType("verdura");
-        deleteIngredient.setImage("sdhvbkdbvjbvj_2.jpg");
+        deleteIngredient.setImage("sdhvbkdbvjbvj_2.jpg".getBytes(StandardCharsets.UTF_8));
         deleteIngredient.setPrice(12.0);
 
         updateIngredient.setName("zanahoria");
         updateIngredient.setType("verdura");
-        updateIngredient.setImage("sdhvbkdbvjbvj.jpg");
+        updateIngredient.setImage("sdhvbkdbvjbvj.jpg".getBytes(StandardCharsets.UTF_8));
         updateIngredient.setPrice(11.0);
 
     }
@@ -115,7 +117,7 @@ class IngredientServiceTest {
         List<Ingredient> ingredients = new ArrayList();
         ingredients.add(new Ingredient());
         given(ingredientRepository.findAll()).willReturn(ingredients);
-        List<Ingredient> expected = ingredientService.getAllIngredients();
+        List<IngredientDTO> expected = ingredientService.getAllIngredients();
         assertEquals(expected, ingredients);
         verify(ingredientRepository).findAll();
     }
@@ -123,8 +125,8 @@ class IngredientServiceTest {
     @Test
     public void when_given_id_should_return_ingredient_if_found() throws Exception {
         when(ingredientRepository.findById(ingredient.getId())).thenReturn(Optional.of(ingredient));
-        Optional<Ingredient> expected = ingredientService.getIngredientById(ingredient.getId());
-        assertEquals(ingredient, expected.get());
+        IngredientDTO expected = ingredientService.getIngredientById(ingredient.getId());
+        assertEquals(ingredient, expected);
         verify(ingredientRepository).findById(ingredient.getId());
     }
 

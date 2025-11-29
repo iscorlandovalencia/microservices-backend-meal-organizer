@@ -17,11 +17,13 @@ mvn clean package compile install -DskipTests
 docker build -t ingredient-microservice .
 
 # run application container using mongodb connection
-docker run --name ingredient-container --net networkmongo \
-  -e SERVER_PORT=5555 \
+docker run -d --name ingredient-container --net network-mongo -p 5558:5558 \
+  -e SERVER_PORT=5558 \
   -e MONGODB_HOST=mongo-container \
   -e MONGODB_PORT=27017 \
   -e MONGODB_DBNAME=meal-organizer-data \
   ingredient-microservice
   #-e MONGODB_USER=admin \
   #-e MONGODB_PASSWORD=admin \
+
+pause

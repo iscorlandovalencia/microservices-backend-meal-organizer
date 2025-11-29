@@ -17,7 +17,7 @@ mvn clean package compile install -DskipTests
 docker build -t meal-microservice .
 
 # run application container using mongodb connection
-docker run -d --name meal-container --net network-mongo \
+docker run -d --name meal-container --net network-mongo -p 6666:6666 \
   -e SERVER_PORT=6666 \
   -e MONGODB_HOST=mongo-container \
   -e MONGODB_PORT=27017 \

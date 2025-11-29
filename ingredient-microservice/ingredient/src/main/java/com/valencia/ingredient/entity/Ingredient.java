@@ -26,7 +26,9 @@ public class Ingredient {
 
     private Double price;
 
-    private String image;
+    private Double quantity;
+
+    private byte[] image;
 
     public Long getId() {
         return id;
@@ -60,11 +62,19 @@ public class Ingredient {
         this.price = price;
     }
 
-    public String getImage() {
+    public Double getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(Double quantity) {
+        this.quantity = quantity;
+    }
+
+    public byte[] getImage() {
         return image;
     }
 
-    public void setImage(String image) {
+    public void setImage(byte[] image) {
         this.image = image;
     }
 }

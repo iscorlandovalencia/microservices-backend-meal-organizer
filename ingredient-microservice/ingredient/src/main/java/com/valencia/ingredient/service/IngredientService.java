@@ -1,5 +1,6 @@
 package com.valencia.ingredient.service;
 
+import com.valencia.ingredient.dto.IngredientDTO;
 import com.valencia.ingredient.entity.Ingredient;
 import com.valencia.ingredient.repository.IngredientRepository;
 import org.slf4j.Logger;
@@ -7,10 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class IngredientService {
@@ -23,16 +22,19 @@ public class IngredientService {
     @Autowired
     private SequenceGeneratorService sequenceGeneratorService;
 
-    public List<Ingredient> getAllIngredients() {
+    public List<IngredientDTO> getAllIngredients() {
         LOG.info("Get All ingredients");
-        return ingredientRepository.findAll();
+        return ingredientRepository.findAll()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
     }
 
-    public Optional<Ingredient> getIngredientById(Long ingredientId) throws Exception {
+    public IngredientDTO getIngredientById(Long ingredientId) throws Exception {
         LOG.info("Get ingredient : " + ingredientId);
-        Optional<Ingredient> ingredient = Optional.ofNullable(ingredientRepository.findById(ingredientId)
-                .orElseThrow(() -> new Exception("Ingredient not found for this id :: " + ingredientId)));
-        return ingredient;
+        Ingredient ingredient = ingredientRepository.findById(ingredientId)
+                .orElseThrow(() -> new Exception("Ingredient not found for this id :: " + ingredientId));
+        return convertToDTO(ingredient);
     }
 
     public Ingredient createIngredient(Ingredient fromIngredient) throws Exception {
@@ -41,6 +43,7 @@ public class IngredientService {
         ingredient.setName(fromIngredient.getName());
         ingredient.setType(fromIngredient.getType());
         ingredient.setImage(fromIngredient.getImage());
+        ingredient.setQuantity(fromIngredient.getQuantity());
         ingredient.setPrice(fromIngredient.getPrice());
 
         LOG.info("Saving a ingredient : " + fromIngredient.getId());
@@ -74,4 +77,17 @@ public class IngredientService {
         return response;
     }
 
+    private IngredientDTO convertToDTO(Ingredient ingredient) {
+        IngredientDTO dto = new IngredientDTO();
+        dto.setId(ingredient.getId());
+        dto.setName(ingredient.getName());
+        dto.setType(ingredient.getType());
+        dto.setPrice(ingredient.getPrice());
+        dto.setQuantity(ingredient.getQuantity());
+        if (ingredient.getImage() != null) {
+            dto.setImage(Base64.getEncoder().encodeToString(ingredient.getImage()));
+        }
+
+        return dto;
+    }
 }
