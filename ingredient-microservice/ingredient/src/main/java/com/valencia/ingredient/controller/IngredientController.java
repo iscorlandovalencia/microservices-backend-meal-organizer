@@ -38,13 +38,13 @@ public class IngredientController {
         return ResponseEntity.ok(ingredients);
     }
 
-    @PostMapping("/ingredients/create")
+    @PostMapping("/ingredients/list")
     public ResponseEntity<Ingredient> createIngredients(@Valid @RequestBody List<IngredientDTO> ingredientList) {
         ingredientService.createIngredients(ingredientList);
         return ResponseEntity.ok().build();
     }
 
-    @PostMapping( value = "/ingredients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping( value = "/ingredients", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Ingredient> createIngredient(
             @Valid @RequestBody Ingredient fromIngredient) {
         return ResponseEntity.ok(ingredientService.createIngredient(fromIngredient));

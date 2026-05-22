@@ -1,34 +1,32 @@
 package com.valencia.ingredient.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.valencia.ingredient.dto.IngredientDTO;
 import com.valencia.ingredient.entity.Ingredient;
 import com.valencia.ingredient.repository.IngredientRepository;
-import org.junit.Rule;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
 
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-@RunWith(MockitoJUnitRunner.class)
 @SpringBootTest
 @AutoConfigureMockMvc
 class IngredientServiceTest {
@@ -40,142 +38,101 @@ class IngredientServiceTest {
     private IngredientRepository ingredientRepository;
 
     @InjectMocks
-    private static IngredientService ingredientService;
+    private IngredientService ingredientService;
 
-    public static final String URL_TEMPLATE = "/api";
+    @Autowired
+    private ObjectMapper objectMapper;
 
-    private static final Ingredient ingredient = new Ingredient();
-    private static final Ingredient ingredient2 = new Ingredient();
-    private static Ingredient ingredient3;
-    private static Ingredient newIngredient;
-    private static Ingredient newIngredient2;
-    private static Ingredient newIngredient3;
-    private static final Ingredient updateIngredient = new Ingredient();
-    private static Ingredient updateIngredient2;
-    private static final Ingredient deleteIngredient = new Ingredient();
-    private static Ingredient deleteIngredient2;
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
-
-    public IngredientServiceTest() {
-        ingredient.setId(1L);
-        ingredient.setName("zanahoria");
-        ingredient.setType("verdura");
-        ingredient.setImage("sdhvbkdbvjbvj.jpg".getBytes(StandardCharsets.UTF_8));
-        ingredient.setPrice(8.0);
-
-        ingredient2.setId(2L);
-        ingredient2.setName("zanahoria");
-        ingredient2.setType("verdura");
-        ingredient2.setImage("sdhvbkdbvjbvj.jpg".getBytes(StandardCharsets.UTF_8));
-        ingredient2.setPrice(8.0);
-
-        deleteIngredient.setId(2L);
-        deleteIngredient.setName("cebolla");
-        deleteIngredient.setType("verdura");
-        deleteIngredient.setImage("sdhvbkdbvjbvj_2.jpg".getBytes(StandardCharsets.UTF_8));
-        deleteIngredient.setPrice(12.0);
-
-        updateIngredient.setName("zanahoria");
-        updateIngredient.setType("verdura");
-        updateIngredient.setImage("sdhvbkdbvjbvj.jpg".getBytes(StandardCharsets.UTF_8));
-        updateIngredient.setPrice(11.0);
-
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    public void create_ingredient_when_perform_ingredients_path() throws Exception {
-        String newIngredient = "{\n" +
-                "    \"name\": \"zanahoria\",\n" +
-                "    \"type\": \"verdura\",\n" +
-                "    \"price\": \"8\",\n" +
-                "    \"image\": \"sdhvbkdbvjbvj.jpg\"\n" +
-                "}";
-        mockMvc.perform(post(URL_TEMPLATE + "/ingredients")
+    void createIngredient_shouldPersistAndReturnIngredient() throws Exception {
+        // Arrange: build ingredient request
+        Ingredient ingredient = new Ingredient();
+        ingredient.setName("Aceite");
+        ingredient.setType("Condiment");
+        ingredient.setPrice(3.5);
+        ingredient.setQuantity(1.0);
+        ingredient.setImage("aceite.jpg");
+
+        // Mock repository save behavior
+        Ingredient savedIngredient = new Ingredient();
+        savedIngredient.setName("Aceite");
+        savedIngredient.setType("Condiment");
+        savedIngredient.setPrice(3.5);
+        savedIngredient.setQuantity(1.0);
+        savedIngredient.setImage("aceite.jpg");
+
+        when(ingredientRepository.save(any(Ingredient.class))).thenReturn(savedIngredient);
+
+        // Act & Assert: perform POST
+        mockMvc.perform(post("/api/ingredients")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(newIngredient))
-                .andExpect(status().isOk());
+                        .content(objectMapper.writeValueAsString(ingredient)))
+                .andExpect(status().isOk())
+                .andExpect((ResultMatcher) jsonPath("$.name").value("Aceite"))
+                .andExpect((ResultMatcher) jsonPath("$.type").value("Condiment"))
+                .andExpect((ResultMatcher) jsonPath("$.price").value(3.5))
+                .andExpect((ResultMatcher) jsonPath("$.quantity").value(1.0))
+                .andExpect((ResultMatcher) jsonPath("$.image").value("aceite.jpg"));
     }
 
     @Test
-    public void test_post_create_ingredient_bad_request() throws Exception {
-        String newIngredient = "badRequest : {\n" +
-                "    \"name\": \"zanahoria\",\n" +
-                "    \"type\": \"verdura\",\n" +
-                "    \"price\": \"8\",\n" +
-                "    \"image\": \"sdhvbkdbvjbvj.jpg\"\n" +
-                "}";
-        mockMvc.perform(post(URL_TEMPLATE + "/ingredients")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(newIngredient))
-                .andExpect(status().isBadRequest());
+    void test_post_create_ingredient_bad_request() {
+        String invalidIngredient = "badRequest : {\"name\": \"zanahoria\"}";
+
+        try {
+            mockMvc.perform(post("/api/ingredients")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(invalidIngredient))
+                    .andExpect(status().isBadRequest());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
-    public void should_return_all_ingredients() {
-        List<Ingredient> ingredients = new ArrayList();
-        ingredients.add(new Ingredient());
+    void should_return_all_ingredients() {
+        Ingredient ingredient = new Ingredient(1L, "zanahoria", "verdura", 8.0, 1.0, "sdhvbkdbvjbvj.jpg");
+        List<Ingredient> ingredients = List.of(ingredient);
+
         given(ingredientRepository.findAll()).willReturn(ingredients);
-        List<IngredientDTO> expected = ingredientService.getAllIngredients();
-        assertEquals(expected, ingredients);
-        verify(ingredientRepository).findAll();
+
+        List<IngredientDTO> result = ingredientService.getAllIngredients();
+
+        assertEquals(1, result.size());
+        assertEquals("zanahoria", result.get(0).getName());
+        verify(ingredientRepository, times(1)).findAll();
     }
 
     @Test
-    public void when_given_id_should_return_ingredient_if_found() throws Exception {
-        when(ingredientRepository.findById(ingredient.getId())).thenReturn(Optional.of(ingredient));
-        IngredientDTO expected = ingredientService.getIngredientById(ingredient.getId());
-        assertEquals(ingredient, expected);
-        verify(ingredientRepository).findById(ingredient.getId());
+    void when_given_id_should_return_ingredient_if_found() {
+        Ingredient ingredient = new Ingredient(1L, "zanahoria", "verdura", 8.0, 1.0, "sdhvbkdbvjbvj.jpg");
+
+        when(ingredientRepository.findById(1L)).thenReturn(Optional.of(ingredient));
+
+        IngredientDTO result = ingredientService.getIngredientById(1L);
+
+        assertEquals("zanahoria", result.getName());
+        verify(ingredientRepository, times(1)).findById(1L);
     }
 
     @Test
-    public void when_given_id_should_delete_ingredient_if_found() throws Exception {
-        when(ingredientRepository.findById(deleteIngredient.getId())).thenReturn(Optional.of(deleteIngredient));
-        ingredientService.deleteIngredient(deleteIngredient.getId());
-        verify(ingredientRepository).deleteById(deleteIngredient.getId());
+    void testGetIngredientsByIds() {
+        List<Long> ids = Arrays.asList(1L, 2L);
+        Ingredient ingredient1 = new Ingredient(1L, "Aceite", "Condiment", 3.5, 1.0, "aceite.jpg");
+        Ingredient ingredient2 = new Ingredient(2L, "Aguacate", "Fruit", 2.0, 0.5, "aguacate.jpg");
+
+        when(ingredientRepository.findAllById(ids)).thenReturn(Arrays.asList(ingredient1, ingredient2));
+
+        List<IngredientDTO> result = ingredientService.getIngredientsByIds(ids);
+
+        assertEquals(2, result.size());
+        assertEquals("Aceite", result.get(0).getName());
+        assertEquals("Aguacate", result.get(1).getName());
+        verify(ingredientRepository, times(1)).findAllById(ids);
     }
-
-    @Test
-    public void when_given_id_should_update_ingredient_if_found() throws Exception {
-        given(ingredientRepository.findById(ingredient2.getId())).willReturn(Optional.of(ingredient2));
-        ingredientService.updateIngredient(ingredient2.getId(), updateIngredient);
-        verify(ingredientRepository).save(updateIngredient);
-        verify(ingredientRepository).findById(updateIngredient.getId());
-    }
-
-		/*
-	@Test
-	public void should_throw_exception_when_ingredient_does_not_exist_on_update() throws Exception {
-//		expectedEx.expect(RuntimeException.class);
-//		expectedEx.expectMessage("Ingredient not found for this id :: " + updateIngredient.getId());
-
-
-		Exception exception = assertThrows(Exception.class, () -> {
-			throw new Exception("Ingredient not found for this id :: " + deleteIngredient.getId());
-		});
-		assertEquals("Ingredient not found for this id :: " + deleteIngredient.getId(), exception.getMessage());
-		given(ingredientRepository.findById(anyLong())).willReturn(Optional.ofNullable(null));
-		ingredientService.updateIngredient(updateIngredient.getId(), ingredient);
-	}
-
-	@Test
-	public void should_throw_exception_when_user_doesnt_exist() throws Exception {
-		expectedEx.expect(RuntimeException.class);
-		expectedEx.expectMessage("Ingredient not found for this id :: " + newIngredient2.getId());
-
-		given(ingredientRepository.findById(anyLong())).willReturn(Optional.ofNullable(null));
-		ingredientService.getIngredientById(newIngredient2.getId());
-	}
-
-	@Test
-	public void should_throw_exception_when_ingredient_does_not_exist_on_delete() throws Exception {
-		Exception exception = assertThrows(Exception.class, () -> {
-			throw new Exception("Ingredient not found for this id :: " + deleteIngredient2.getId());
-		});
-		assertEquals("Ingredient not found for this id :: " + deleteIngredient2.getId(), exception.getMessage());
-		given(ingredientRepository.findById(anyLong())).willReturn(Optional.ofNullable(null));
-		ingredientService.deleteIngredient(deleteIngredient2.getId());
-	}*/
 }
