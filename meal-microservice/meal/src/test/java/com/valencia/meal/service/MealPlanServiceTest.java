@@ -13,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-class MealPlanServiceGroupedTest {
+class MealPlanServiceTest {
 
     @Mock
     private MealService mealService;
@@ -21,12 +21,12 @@ class MealPlanServiceGroupedTest {
     @InjectMocks
     private MealPlanService mealPlanService;
 
-    public MealPlanServiceGroupedTest() {
+    public MealPlanServiceTest() {
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
-    void generateWeeklyMeals_shouldReturn7MealsGroupedByCategory() throws Exception {
+    void generateWeeklyMeals_shouldReturn7MealsGroupedByCategory() {
         // Arrange: create 10 meals across categories
         List<Meal> allMeals = new ArrayList<>();
         String[] categories = {"Pollo", "Res", "Mariscos", "Puerco", "Verduras", "Botanera", "Extra1", "Extra2", "Extra3", "Extra4"};
@@ -75,7 +75,7 @@ class MealPlanServiceGroupedTest {
     }
 
     @Test
-    void generateWeeklyMeals_shouldReturn7MealsEvenWith6Types() throws Exception {
+    void generateWeeklyMeals_shouldReturn7MealsEvenWith6Types() {
         // Arrange: create 6 meals across 6 categories
         List<Meal> allMeals = new ArrayList<>();
         String[] categories = {"Pollo", "Res", "Mariscos", "Puerco", "Verduras", "Botanera"};
@@ -116,7 +116,7 @@ class MealPlanServiceGroupedTest {
     }
 
     @Test
-    void generateWeeklyMeals_shouldReturn7MealsWithAll6CategoriesAndOneRepeat() throws Exception {
+    void generateWeeklyMeals_shouldReturn7MealsWithAll6CategoriesAndOneRepeat() {
         // Arrange: create 6 meals across 6 categories
         List<Meal> allMeals = new ArrayList<>();
         String[] categories = {"Pollo", "Res", "Mariscos", "Puerco", "Verduras", "Botanera"};
