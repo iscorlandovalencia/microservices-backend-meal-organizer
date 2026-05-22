@@ -1,21 +1,19 @@
 package com.valencia.meal.dto;
 
-
 import lombok.*;
-
-import java.util.List;
 
 @Setter
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MealDTO {
+public class IngredientDTO {
+
     private Long id;
-    private String category;
     private String name;
-    private List<Long> ingredients;
+    private String type;
+    private Double price;
+    private Double quantity;
     private String image;
-    private String preparation;
 
 }

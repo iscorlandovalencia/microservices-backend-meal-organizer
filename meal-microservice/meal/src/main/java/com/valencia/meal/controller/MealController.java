@@ -1,5 +1,6 @@
 package com.valencia.meal.controller;
 
+import com.valencia.meal.dto.MealIngredientsDTO;
 import com.valencia.meal.entity.Meal;
 import com.valencia.meal.service.MealService;
 import jakarta.validation.Valid;
@@ -25,10 +26,11 @@ public class MealController {
     }
 
     @GetMapping("/meal/{id}")
-    public ResponseEntity<Meal> getMealById(
-            @PathVariable(value = "id") Long mealId) throws Exception {
-        return ResponseEntity.ok().body(mealService.getMealById(mealId));
+    public ResponseEntity<MealIngredientsDTO> getMealWithIngredients(@PathVariable Long mealId) throws Exception {
+        MealIngredientsDTO mealDTO = mealService.getMealWithIngredients(mealId);
+        return ResponseEntity.ok(mealDTO);
     }
+
     @PostMapping("/meals")
     public ResponseEntity<Meal> createMeal(
             @NotNull

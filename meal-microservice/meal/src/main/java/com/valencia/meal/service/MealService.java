@@ -1,6 +1,8 @@
 package com.valencia.meal.service;
 
 import com.valencia.meal.controller.MealController;
+import com.valencia.meal.dto.IngredientDTO;
+import com.valencia.meal.dto.MealIngredientsDTO;
 import com.valencia.meal.entity.Meal;
 import com.valencia.meal.repository.MealRepository;
 import org.slf4j.Logger;
@@ -24,16 +26,22 @@ public class MealService {
     @Autowired
     private SequenceGeneratorService sequenceGeneratorService;
 
+    @Autowired
+    private IngredientService ingredientService;
+
     public List<Meal> getAllMeals() {
         LOG.info("find All Meals");
         return mealRepository.findAll();
     }
 
     public Meal getMealById(Long mealId) throws Exception {
-        LOG.info("get meal by Id : " + mealId);
-        Optional<Meal> meal = Optional.ofNullable(mealRepository.findById(mealId)
-                .orElseThrow(() -> new Exception("Meal not found for this id :: " + mealId)));
-        return meal.get();
+        LOG.info("get meal by Id : {}", mealId);
+        Optional<Meal> mealOpt = Optional.ofNullable(mealRepository.findById(mealId)
+                .orElseThrow(() -> new Exception("Meal not found for this id :: {}" + mealId)));
+        if (mealOpt.isEmpty()) {
+            throw new Exception("Meal not found for this id :: " + mealId);
+        }
+        return mealOpt.get();
     }
 
     public Meal createMeal(Meal fromMeal) throws Exception {
@@ -82,6 +90,27 @@ public class MealService {
         response.put("deleted", Boolean.TRUE);
         LOG.info("Meal deleted : " + mealId);
         return response;
+    }
+
+    public MealIngredientsDTO getMealWithIngredients(Long mealId) throws Exception {
+        LOG.info("Fetching meal with ingredients for ID: " + mealId);
+
+        // Fetch the meal
+        Meal meal = getMealById(mealId);
+
+        // Fetch full IngredientDTOs for the ingredient IDs
+        List<IngredientDTO> ingredientDTOs = ingredientService.getIngredients(meal.getIngredients());
+
+        // Map Meal to MealDTO
+        MealIngredientsDTO mealDTO = new MealIngredientsDTO();
+        mealDTO.setId(meal.getId());
+        mealDTO.setCategory(meal.getCategory());
+        mealDTO.setName(meal.getName());
+        mealDTO.setImage(meal.getImage());
+        mealDTO.setPreparation(meal.getPreparation());
+        mealDTO.setIngredients(ingredientDTOs);
+
+        return mealDTO;
     }
 
 }

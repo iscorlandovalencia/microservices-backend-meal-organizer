@@ -54,7 +54,7 @@ public class MealConverterTest {
     }
     @Test
     void testToDTO_MapsAllFieldsCorrectly() {
-        MealDTO dto = mealMapper.toDTO(meal);
+        MealDTO dto = mealMapper.toMealDTO(meal);
         assertNotNull(dto);
         assertEquals(meal.getId(), dto.getId());
         assertEquals(meal.getName(), dto.getName());

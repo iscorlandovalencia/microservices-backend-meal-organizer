@@ -1,6 +1,5 @@
 package com.valencia.meal.dto;
 
-
 import lombok.*;
 
 import java.util.List;
@@ -10,12 +9,12 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MealDTO {
+public class GeneratedMealsResponse {
     private Long id;
-    private String category;
     private String name;
-    private List<Long> ingredients;
+    private String category;
     private String image;
     private String preparation;
-
+    private List<IngredientDTO> ingredients;
+    private String date;
 }

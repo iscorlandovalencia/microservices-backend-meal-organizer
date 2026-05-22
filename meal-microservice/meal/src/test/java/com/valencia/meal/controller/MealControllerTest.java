@@ -1,5 +1,6 @@
 package com.valencia.meal.controller;
 
+import com.valencia.meal.dto.MealIngredientsDTO;
 import com.valencia.meal.entity.Meal;
 import com.valencia.meal.service.MealService;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -67,7 +69,7 @@ public class MealControllerTest {
         when(mealService.getMealById(mealId)).thenReturn(mockMeal);
 
         // Act
-        ResponseEntity<Meal> response = mealController.getMealById(mealId);
+        ResponseEntity<MealIngredientsDTO> response = mealController.getMealWithIngredients(mealId);
 
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -97,6 +99,7 @@ public class MealControllerTest {
         assertEquals(1L, response.getBody().getId());
         assertEquals("Sushi", response.getBody().getName());
     }
+
     @Test
     void testUpdateMeal_ReturnsUpdatedMeal() throws Exception {
         // Arrange
@@ -137,6 +140,50 @@ public class MealControllerTest {
         assertNotNull(result);
         assertTrue(result.containsKey("deleted"));
         assertTrue(result.get("deleted"));
+    }
+
+    @Test
+    void createMeal_withIngredientsArray_shouldReturnMeal() throws Exception {
+        Meal mealRequest = new Meal();
+        mealRequest.setName("Lasaña");
+        mealRequest.setIngredients(List.of(1L, 2L, 3L));
+
+        Meal savedMeal = new Meal();
+        savedMeal.setId(1L);
+        savedMeal.setName("Lasaña");
+
+        when(mealService.createMeal(any(Meal.class))).thenReturn(savedMeal);
+
+        ResponseEntity<Meal> response = mealController.createMeal(mealRequest);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Lasaña", response.getBody().getName());
+    }
+
+    @Test
+    void createMeal_withIngredientsArrayNumber_shouldReturnMeal() throws Exception {
+        // Arrange: request with ingredient IDs
+        Meal mealRequest = new Meal();
+        mealRequest.setName("Lasaña");
+        mealRequest.setIngredients(List.of(1L, 2L, 3L));
+
+        // Mocked saved meal with ingredient IDs
+        Meal savedMeal = new Meal();
+        savedMeal.setId(1L);
+        savedMeal.setName("Lasaña");
+        savedMeal.setIngredients(List.of(1L, 2L, 3L));
+
+        when(mealService.createMeal(any(Meal.class))).thenReturn(savedMeal);
+
+        // Act
+        ResponseEntity<Meal> response = mealController.createMeal(mealRequest);
+
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals("Lasaña", response.getBody().getName());
+        assertNotNull(response.getBody().getIngredients());
+        assertEquals(3, response.getBody().getIngredients().size());
+        assertEquals(List.of(1L, 2L, 3L), response.getBody().getIngredients());
     }
 
 }

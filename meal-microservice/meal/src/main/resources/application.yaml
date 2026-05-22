@@ -17,3 +17,6 @@ eureka:
     prefer-ip-address: true
     hostname: ${HOST_IP:localhost}
     instanceId: ${spring.application.name}:${random.uuid}
+
+external-services:
+  ingredients-url: http://localhost:5558/api/ingredients

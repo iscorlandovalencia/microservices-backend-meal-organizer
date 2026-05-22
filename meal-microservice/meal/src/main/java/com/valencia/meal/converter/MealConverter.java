@@ -17,7 +17,7 @@ public class MealConverter {
         return meal;
     }
 
-    public MealDTO toDTO(Meal entity) {
+    public MealDTO toMealDTO(Meal entity) {
         MealDTO dto = new MealDTO();
 
         dto.setId(entity.getId());
