@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -28,14 +27,26 @@ public class IngredientController {
 
     @GetMapping("/ingredients/{id}")
     public ResponseEntity<IngredientDTO> getIngredientById(
-            @PathVariable("id") Long ingredientId) throws Exception {
+            @PathVariable("id") Long ingredientId) {
         IngredientDTO ingredient = ingredientService.getIngredientById(ingredientId);
         return ResponseEntity.ok(ingredient);
     }
 
+    @GetMapping("/ingredients/ids")
+    public ResponseEntity<List<IngredientDTO>> getIngredientsByIds(@RequestBody List<Long> ids) {
+        List<IngredientDTO> ingredients = ingredientService.getIngredientsByIds(ids);
+        return ResponseEntity.ok(ingredients);
+    }
+
+    @PostMapping("/ingredients/create")
+    public ResponseEntity<Ingredient> createIngredients(@Valid @RequestBody List<IngredientDTO> ingredientList) {
+        ingredientService.createIngredients(ingredientList);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping( value = "/ingredients", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Ingredient> createIngredient(
-            @Valid @RequestBody Ingredient fromIngredient) throws Exception {
+            @Valid @RequestBody Ingredient fromIngredient) {
         return ResponseEntity.ok(ingredientService.createIngredient(fromIngredient));
     }
 
@@ -43,14 +54,14 @@ public class IngredientController {
     public ResponseEntity<Ingredient> updateIngredient(
             @PathVariable(value = "id") Long ingredientId,
             @Valid
-            @RequestBody Ingredient fromIngredient) throws Exception {
+            @RequestBody Ingredient fromIngredient) {
         final Ingredient updatedIngredient = ingredientService.updateIngredient(ingredientId, fromIngredient);
         return ResponseEntity.ok(updatedIngredient);
     }
 
     @DeleteMapping("/ingredient/{id}")
     public Map< String, Boolean > deleteIngredient(
-            @PathVariable(value = "id") Long ingredientId) throws Exception {
+            @PathVariable(value = "id") Long ingredientId) {
         return ingredientService.deleteIngredient(ingredientId);
     }
 
