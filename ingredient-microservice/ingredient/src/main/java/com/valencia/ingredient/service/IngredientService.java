@@ -2,6 +2,7 @@ package com.valencia.ingredient.service;
 
 import com.valencia.ingredient.dto.IngredientDTO;
 import com.valencia.ingredient.entity.Ingredient;
+import com.valencia.ingredient.exception.IngredientNotFoundException;
 import com.valencia.ingredient.repository.IngredientRepository;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
@@ -49,6 +50,20 @@ public class IngredientService {
             throw new RuntimeException("Ingredient not found for this id :: " + ingredientId, e);
         }
         return convertToDTO(ingredient);
+    }
+
+    public IngredientDTO getIngredientByName(String name) {
+        Ingredient ingredient = ingredientRepository.findByNameIgnoreCase(name)
+                .orElseThrow(() -> new IngredientNotFoundException("Ingrediente no encontrado: " + name));
+
+        IngredientDTO dto = new IngredientDTO();
+        dto.setId(ingredient.getId());
+        dto.setName(ingredient.getName());
+        dto.setType(ingredient.getType());
+        dto.setPrice(ingredient.getPrice());
+        dto.setQuantity(ingredient.getQuantity());
+        dto.setImage(ingredient.getImage());
+        return dto;
     }
 
     public Ingredient createIngredient(Ingredient fromIngredient){

@@ -32,10 +32,16 @@ public class IngredientController {
         return ResponseEntity.ok(ingredient);
     }
 
-    @GetMapping("/ingredients/ids")
+    @PostMapping("/ingredients/ids")
     public ResponseEntity<List<IngredientDTO>> getIngredientsByIds(@RequestBody List<Long> ids) {
         List<IngredientDTO> ingredients = ingredientService.getIngredientsByIds(ids);
         return ResponseEntity.ok(ingredients);
+    }
+
+    @GetMapping("/ingredients/search")
+    public ResponseEntity<IngredientDTO> getIngredientByName(@RequestParam String name) {
+        IngredientDTO ingredient = ingredientService.getIngredientByName(name);
+        return ResponseEntity.ok(ingredient);
     }
 
     @PostMapping("/ingredients/list")

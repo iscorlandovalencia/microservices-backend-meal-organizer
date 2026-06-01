@@ -1,19 +1,20 @@
 package com.valencia.ingredient.util;
 
 public enum IngredientType {
-    CONDIMENT("Condiment"),
-    FRUIT("Fruit"),
-    VEGETABLE("Vegetable"),
-    MEAT("Meat"),
-    GRAIN("Grain"),
-    FISH("Fish"),
-    BREAD("Bread"),
-    SEAFOOD("Seafood"),
-    SPICE("Spice"),
-    BEVERAGE("Beverage"),
-    HERB("Herb"),
-    DAIRY("Dairy"),
-    LEGUME("Legume");
+    CONDIMENTO("Condimento"),
+    FRUTA("Fruta"),
+    VEGETAL("Vegetal"),
+    CARNE("Carne"),
+    GRANO("Grano"),
+    PESCADO("Pescado"),
+    PAN("Pan"),
+    MARISCO("Marisco"),
+    ESPECIA("Especia"),
+    BEBIDA("Bebida"),
+    HIERBA("Hierba"),
+    LACTEO("Lacteo"),
+    PASTA("Pasta"),
+    LEGUMINOSA("Leguminosa");
 
     private final String type;
 
