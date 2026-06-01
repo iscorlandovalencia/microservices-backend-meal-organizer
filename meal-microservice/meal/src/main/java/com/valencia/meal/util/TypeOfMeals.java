@@ -5,9 +5,7 @@ public enum TypeOfMeals {
     RES("Res"),
     MARISCOS("Mariscos"),
     PUERCO("Puerco"),
-    VERDURAS("Verduras"),
-    BOTANERA("Botanera"),
-    MAIN_DISH("Main Dish");
+    VERDURAS("Verduras");
 
     private final String displayName;
 

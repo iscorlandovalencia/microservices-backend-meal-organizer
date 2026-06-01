@@ -41,4 +41,6 @@ public class Meal {
 
     private String preparation;
 
+    private int timesSelected;
+
 }

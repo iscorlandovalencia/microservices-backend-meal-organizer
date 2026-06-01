@@ -17,4 +17,5 @@ public class GeneratedMealsResponse {
     private String preparation;
     private List<IngredientDTO> ingredients;
     private String date;
+    private int timesSelected;
 }

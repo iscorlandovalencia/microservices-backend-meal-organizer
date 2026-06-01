@@ -4,15 +4,25 @@ import com.valencia.meal.dto.GeneratedMealsResponse;
 import com.valencia.meal.dto.MealIngredientsDTO;
 import com.valencia.meal.entity.Meal;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class MealPlanService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(MealPlanService.class);
+
+    @Autowired
     private MealService mealService;
+
+    private final Map<Long, Integer> selectionCount = new HashMap<>();
 
     private final Random random = new Random();
     private final SimpleDateFormat formatter = new SimpleDateFormat("dd/MMM/yyyy", Locale.ENGLISH);
@@ -29,47 +39,52 @@ public class MealPlanService {
     }
 
     private List<GeneratedMealsResponse> randomMeal() {
+        LOG.info("Generating random meals");
         List<Meal> allMeals = mealService.getAllMeals().stream().toList();
 
-        // Group meals by type
+        // Agrupar por categoría
         Map<String, List<Meal>> mealsByType = allMeals.stream()
                 .filter(meal -> meal.getCategory() != null)
                 .collect(Collectors.groupingBy(Meal::getCategory));
 
-        // For each type, shuffle and pick up to N meals
         List<Meal> selectedMeals = new ArrayList<>();
 
+        // Seleccionar uno por categoría, priorizando los menos seleccionados
         for (Map.Entry<String, List<Meal>> entry : mealsByType.entrySet()) {
             List<Meal> mealsOfType = new ArrayList<>(entry.getValue());
             Collections.shuffle(mealsOfType);
 
-            // pick one or more per type — here we pick 1
             mealsOfType.stream()
-                    .limit(1)
-                    .forEach(selectedMeals::add);
+                    .min(Comparator.comparingInt(Meal::getTimesSelected))
+                    .ifPresent(selectedMeals::add);
         }
 
-        // If you need exactly 7 meals total, shuffle again and trim
-        Collections.shuffle(selectedMeals);
+        // Si faltan para llegar a 7, rellenar con los menos seleccionados del pool completo
+        while (selectedMeals.size() < 7 && !allMeals.isEmpty()) {
+            Meal extra = allMeals.stream()
+                    .filter(meal -> !selectedMeals.contains(meal))
+                    .min(Comparator.comparingInt(Meal::getTimesSelected))
+                    .orElse(null);
 
-        // If fewer than 7, add more from existing pool
-        if (selectedMeals.size() < 7) {
-            List<Meal> allMealsCopy = new ArrayList<>(allMeals);
-            Collections.shuffle(allMealsCopy);
-
-            while (selectedMeals.size() < 7 && !allMealsCopy.isEmpty()) {
-                Meal extra = allMealsCopy.remove(0);
-                selectedMeals.add(extra);
-            }
+            if (extra == null) break;
+            selectedMeals.add(extra);
         }
-        selectedMeals = selectedMeals.stream()
-                .limit(7)
-                .toList();
 
-        return getMealWithIngredients(selectedMeals);
+        // Actualizar contador en BD
+        selectedMeals.forEach(meal -> {
+            meal.setTimesSelected(meal.getTimesSelected() + 1);
+            mealService.updateMeal(meal.getId(), meal);
+        });
+
+        List<GeneratedMealsResponse> mealWithIngredients = getMealWithIngredients(selectedMeals);
+        LOG.info("Generated meals with ingredients: {}", mealWithIngredients);
+
+        return mealWithIngredients;
     }
 
+
     private @NotNull List<GeneratedMealsResponse> getMealWithIngredients(List<Meal> selectedMeals) {
+        LOG.info("Fetching meal ingredients for selected meals");
         List<GeneratedMealsResponse> mealsWithIngredients = selectedMeals.stream()
                 .map(meal -> {
                     try {
@@ -83,6 +98,7 @@ public class MealPlanService {
                                 .preparation(fullMeal.getPreparation())
                                 .ingredients(fullMeal.getIngredients())
                                 .date(null)
+                                .timesSelected(meal.getTimesSelected())
                                 .build();
 
                     } catch (Exception e) {
@@ -117,7 +133,8 @@ public class MealPlanService {
                     .image(selectedMeal.getImage())
                     .preparation(selectedMeal.getPreparation())
                     .ingredients(selectedMeal.getIngredients())
-                    .date(formatter.format(calendar.getTime())) // Add dates
+                    .date(formatter.format(calendar.getTime()))
+                    .timesSelected(selectedMeal.getTimesSelected())
                     .build();
 
             weeklyMeals.add(dto);

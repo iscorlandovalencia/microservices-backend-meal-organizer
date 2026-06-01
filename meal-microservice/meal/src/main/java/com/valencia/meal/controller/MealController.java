@@ -1,5 +1,6 @@
 package com.valencia.meal.controller;
 
+import com.valencia.meal.dto.MealDTO;
 import com.valencia.meal.dto.MealIngredientsDTO;
 import com.valencia.meal.entity.Meal;
 import com.valencia.meal.service.MealService;
@@ -39,12 +40,12 @@ public class MealController {
         return ResponseEntity.ok(mealService.createMeal(fromMeal));
     }
 
-    @PostMapping("/meals/list")
-    public ResponseEntity<List<Meal>> createMeals(
+    @PostMapping("/meals/createList")
+    public ResponseEntity<List<MealDTO>> createMeals(
             @NotNull
             @Valid
-            @RequestBody List<Meal> fromMeals) {
-        mealService.createMeals(fromMeals);
+            @RequestBody List<MealIngredientsDTO> fromMeals) {
+        mealService.createMealsWithIngredientIds(fromMeals);
         return ResponseEntity.ok().build();
     }
 

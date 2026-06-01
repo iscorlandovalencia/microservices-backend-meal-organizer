@@ -19,4 +19,4 @@ eureka:
     instanceId: ${spring.application.name}:${random.uuid}
 
 external-services:
-  ingredients-url: http://localhost:5558/api/ingredients
+  ingredients-url: http://ingredient-container:5558/api/ingredients

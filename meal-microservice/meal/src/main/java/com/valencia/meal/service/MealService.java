@@ -1,6 +1,7 @@
 package com.valencia.meal.service;
 
 import com.valencia.meal.dto.IngredientDTO;
+import com.valencia.meal.dto.MealDTO;
 import com.valencia.meal.dto.MealIngredientsDTO;
 import com.valencia.meal.entity.Meal;
 import com.valencia.meal.repository.MealRepository;
@@ -11,10 +12,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class MealService {
@@ -68,9 +69,26 @@ public class MealService {
         return mealRepository.save(meal);
     }
 
-    public void createMeals(@NotNull @Valid List<Meal> meals) {
+    public void createMealsWithIngredientIds(@NotNull @Valid List<MealIngredientsDTO> meals) {
         try {
-            mealRepository.saveAll(meals.stream().map(meal -> {
+            List<IngredientDTO> allIngredients = ingredientService.getAllIngredients();
+            allIngredients.forEach(ingredient -> LOG.info("From Existing ingredient Service : {} ", ingredient.getName()));
+
+            Set<String> existingIngredientNames = allIngredients.stream()
+                    .map(ingredient -> ingredient.getName().toLowerCase())
+                    .collect(Collectors.toSet());
+
+            meals.forEach(meal -> LOG.info("Meals : {} ", meal.getName()));
+            //Save All missing ingredients
+            List<IngredientDTO> newIngredients = getMissingIngredients(meals, existingIngredientNames);
+            newIngredients.forEach(ingredient -> LOG.info("Existing ingredient Name : {} ", ingredient.getName()));
+            if (!newIngredients.isEmpty()) {
+                ingredientService.saveAll(newIngredients);
+            }
+
+            List<MealDTO> mealWithIngredientIds = getMealWithIngredientIds(meals);
+            mealWithIngredientIds.forEach(ingredient -> LOG.info("Existing ingredient : {} ", ingredient.getName()));
+            mealRepository.saveAll(mealWithIngredientIds.stream().map(meal -> {
                 Meal thisMeal = new Meal();
                 thisMeal.setId(sequenceGeneratorService.generateSequence(Meal.SEQUENCE_NAME));
                 thisMeal.setCategory(meal.getCategory());
@@ -84,6 +102,67 @@ public class MealService {
             throw new RuntimeException("Error occurred while creating meals", e);
         }
 
+    }
+
+    //
+    private @NotNull List<MealDTO> getMealWithIngredientIds(List<MealIngredientsDTO> meals) {
+        return meals.stream()
+                .map(meal -> {
+                    Set<Long> ingredientIds = meal.getIngredients().stream()
+                            .map(ingredient -> {
+                                String encodedName = URLEncoder.encode(ingredient.getName().trim(), StandardCharsets.UTF_8);
+                                IngredientDTO dto = ingredientService.getIngredientByName(encodedName);
+                                return dto != null ? dto.getId() : 0L;
+                            }).collect(Collectors.toSet());
+                    MealDTO mealDTO = new MealDTO();
+                    mealDTO.setId(meal.getId());
+                    mealDTO.setCategory(meal.getCategory());
+                    mealDTO.setName(meal.getName());
+                    mealDTO.setImage(meal.getImage());
+                    mealDTO.setPreparation(meal.getPreparation());
+                    mealDTO.setIngredients(ingredientIds.stream().toList());
+
+                    return mealDTO;
+                })
+                .toList();
+    }
+
+    private static @NotNull List<IngredientDTO> getMissingIngredients(
+            List<MealIngredientsDTO> meals,
+            Set<String> existingIngredientNames) {
+
+        List<IngredientDTO> newIngredients = new ArrayList<>();
+        LOG.info("getMissingIngredients() Existing ingredient names : {} ", existingIngredientNames);
+
+        // Set auxiliar para evitar duplicados
+        Set<String> seenNames = new HashSet<>();
+
+        meals.forEach(meal -> LOG.info("Ingredients from Meal : {} : {}", meal.getName(), meal.getIngredients()));
+
+        meals.forEach(meal -> {
+            List<IngredientDTO> missing = meal.getIngredients().stream()
+                    .filter(ingredient -> {
+                        String normalizedName = ingredient.getName().toLowerCase();
+                        return !existingIngredientNames.contains(normalizedName)
+                                && seenNames.add(normalizedName);
+                    })
+                    .map(ingredient -> {
+                        IngredientDTO dto = new IngredientDTO();
+                        dto.setName(ingredient.getName());
+                        dto.setImage(ingredient.getImage());
+                        dto.setType(ingredient.getType());
+                        dto.setPrice(ingredient.getPrice());
+                        dto.setQuantity(ingredient.getQuantity());
+                        return dto;
+                    })
+                    .toList();
+
+            if (!missing.isEmpty()) {
+                newIngredients.addAll(missing);
+            }
+        });
+
+        return newIngredients;
     }
 
     public Meal updateMeal(Long mealId, Meal fromMeal) {
@@ -107,6 +186,7 @@ public class MealService {
         thisMeal.setImage(fromMeal.getImage());
         thisMeal.setPreparation(fromMeal.getPreparation());
         thisMeal.setIngredients(fromMeal.getIngredients());
+        thisMeal.setTimesSelected(fromMeal.getTimesSelected());
 
         final Meal updatedMeal = mealRepository.save(thisMeal);
         LOG.info("Meal updated");
